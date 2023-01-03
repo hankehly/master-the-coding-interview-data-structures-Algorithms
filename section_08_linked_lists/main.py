@@ -1,4 +1,9 @@
+import logging
+import os
 from typing import Any
+
+LOGLEVEL = os.getenv("LOGLEVEL", "INFO").upper()
+logging.basicConfig(level=LOGLEVEL)
 
 
 class Node:
@@ -103,19 +108,29 @@ class LinkedList:
 
         Time complexity: O(1) if index == 0, otherwise O(n)
         """
-        is_head = index <= 0
-        is_tail = index >= self.length - 1
+        index_safe = min(max(index, 0), self.length - 1)
+        is_head = index_safe == 0
+        is_tail = index_safe == self.length - 1
+        logging.debug(
+            f"Removing index={index}, index_safe={index_safe}, length={self.length}, "
+            f"is_head={is_head}, is_tail={is_tail}"
+        )
+        logging.debug(f"Before removal: {self}")
         if is_head:
+            logging.debug(f"Removing head node (value {self.head.value})")
             self.head = self.head.next
         else:
             node_pre = self.head
-            for _ in range(index - 1):
+            for i in range(index_safe - 1):
+                logging.debug(f"> {i}: {node_pre.value}")
                 node_pre = node_pre.next
             if is_tail:
+                logging.debug(f"Removing tail node (value {node_pre.next.value})")
                 node_pre.next = None
             else:
                 node_after = node_pre.next.next
                 node_pre.next = node_after
+        logging.debug(f"After removal: {self}")
         self.length -= 1
 
     def __len__(self):
@@ -136,17 +151,19 @@ class LinkedList:
 
 
 def main():
-    my_list = LinkedList(10)
-    my_list.append(2)
-    my_list.append(3)
-    my_list.append(40)
-    my_list.prepend(13)
-    my_list.prepend(99)
-    my_list.insert(2, "hello")
-    my_list.insert(5, "world")
-    my_list.remove(0)
-    my_list.remove(6)
-    my_list.remove(2)
+    # fmt: off
+    my_list = LinkedList(10)    # 10
+    my_list.append(2)           # 10 --> 2
+    my_list.append(3)           # 10 --> 2  --> 3
+    my_list.append(40)          # 10 --> 2  --> 3 --> 40
+    my_list.prepend(13)         # 13 --> 10 --> 2 --> 3 --> 40
+    my_list.prepend(99)         # 99 --> 13 --> 10 --> 2 --> 3 --> 40
+    my_list.insert(2, "hello")  # 99 --> 13 --> hello --> 10 --> 2 --> 3 --> 40
+    my_list.insert(5, "world")  # 99 --> 13 --> hello --> 10 --> 2 --> world --> 3 --> 40
+    my_list.remove(0)           # 13 --> hello --> 10 --> 2 --> world --> 3 --> 40
+    my_list.remove(200)         # 13 --> hello --> 10 --> 2 --> world --> 3
+    my_list.remove(2)           # 13 --> hello --> 2 --> world --> 3
+    # fmt: on
     assert str(my_list) == "13 --> hello --> 2 --> world --> 3"
     print(my_list)
 
