@@ -10,20 +10,14 @@ class Node:
     def __init__(self, value: Any) -> None:
         self.value = value
         self.next: Node = None
+        # only used for doubly linked lists
+        self.parent: Node = None
 
 
-class LinkedList:
+class DoublyLinkedList:
     """
-    {
-        "value": 1,
-        "next": {
-            "value": 2,
-            "next": {
-                "value: 3,
-                "next": None
-            }
-        }
-    }
+    An implementation of a *doubly* linked list.
+    To make this a singly linked list, just remove the lines with "parent"
     """
 
     def __init__(self, value: Any) -> None:
@@ -37,20 +31,24 @@ class LinkedList:
         referencing the same object in memory. Therefore, an update to self.tail.next
         is reflected in self.head. This means we don't need to use a while loop to get
         the last element of self.head.
-
+        To make this a doubly linked list, we tell the new node its parent is self.tail.
         Time complexity: O(1)
         """
         new = Node(value)
+        new.parent = self.tail
         self.tail.next = new
         self.tail = new
         self.length += 1
 
     def prepend(self, value: Any) -> None:
         """
+        Same strategy as append.
+        To make this a doubly linked list, we tell the previous head its parent is the new node.
         Time complexity: O(1)
         """
         new = Node(value)
         new.next = self.head
+        self.head.parent = new
         self.head = new
         self.length += 1
 
@@ -58,13 +56,16 @@ class LinkedList:
         """
         Assuming we have the following list:
 
-          index: 0     1     2     3
-          value: a --- b --- c --- d
+          index: 0      1      2      3
+          value: a <--> b <--> c <--> d
 
         To insert "foo" at index 2, we would create a new node
         and link it to the nodes immediately before and on the index.
         In other words, you need a reference to the node at 'index' and
         and the node immediately before it.
+
+        To make it a double linked list, we set the parent of the new node and
+        the node after it.
 
         Time complexity: O(1) if first/last item in chain.
                          O(n) if somewhere in the middle.
@@ -74,11 +75,13 @@ class LinkedList:
         elif index >= self.length - 1:
             self.append(value)
         else:
-            # Since all nodes have a reference to the next node
-            # we should find the node immediately before the node at index
             pre = self.traverse_to_index(index - 1)
             new = Node(value)
+            # link new node and node after it
             new.next = pre.next
+            pre.next.parent = new
+            # link new node and node before it
+            new.parent = pre
             pre.next = new
             self.length += 1
 
@@ -110,6 +113,7 @@ class LinkedList:
         logging.debug(f"Before removal: {self}")
         if is_head:
             logging.debug(f"Removing head node (value {self.head.value})")
+            self.head.next.parent = None
             self.head = self.head.next
         else:
             pre = self.traverse_to_index(index_safe - 1)
@@ -118,14 +122,29 @@ class LinkedList:
                 pre.next = None
             else:
                 aft = pre.next.next
+                aft.parent = pre
                 pre.next = aft
-        logging.debug(f"After removal: {self}")
         self.length -= 1
+        logging.debug(f"After removal: {self}")
 
     def traverse_to_index(self, index: int) -> Node:
-        c = self.head
-        for _ in range(index):
-            c = c.next
+        """
+        Returns the node at index.
+        To optimize the search, we start iterating from the side (ie head/tail) closest to the index.
+        Time complexity: O(n) (technically O(n/2))
+        """
+        mid_point = self.length // 2
+        near_head = index <= self.length - mid_point
+        if near_head:
+            # iterate forwards using the node.next reference
+            c = self.head
+            for _ in range(index):
+                c = c.next
+        else:
+            # iterate backwards using the node.parent reference
+            c = self.tail
+            for _ in range(self.length - 1, index, -1):
+                c = c.parent
         return c
 
     def __len__(self):
@@ -133,33 +152,35 @@ class LinkedList:
 
     def __str__(self) -> str:
         """
-        Format:
-        x --> y --> z
+        Builds a string in the format: (node.value) <--> (node.value) <--> ...
+        Arrows show parent/next relationship (ie. if relationship doesn't exist, no arrow)
         """
-        n = self.head
-        values = [n.value]
-        while n.next:
-            n = n.next
-            values.append(n.value)
-        result = " --> ".join(map(str, values))
-        return result
+        cursor = self.head
+        s = str(cursor.value)
+        while cursor.next:
+            if cursor.next.parent == cursor:
+                s += " <-"
+            s += "-> "
+            s += str(cursor.next.value)
+            cursor = cursor.next
+        return s
 
 
 def main():
     # fmt: off
-    my_list = LinkedList(10)    # 10
-    my_list.append(2)           # 10 --> 2
-    my_list.append(3)           # 10 --> 2  --> 3
-    my_list.append(40)          # 10 --> 2  --> 3 --> 40
-    my_list.prepend(13)         # 13 --> 10 --> 2 --> 3 --> 40
-    my_list.prepend(99)         # 99 --> 13 --> 10 --> 2 --> 3 --> 40
-    my_list.insert(2, "hello")  # 99 --> 13 --> hello --> 10 --> 2 --> 3 --> 40
-    my_list.insert(5, "world")  # 99 --> 13 --> hello --> 10 --> 2 --> world --> 3 --> 40
-    my_list.remove(0)           # 13 --> hello --> 10 --> 2 --> world --> 3 --> 40
-    my_list.remove(200)         # 13 --> hello --> 10 --> 2 --> world --> 3
-    my_list.remove(2)           # 13 --> hello --> 2 --> world --> 3
+    my_list = DoublyLinkedList(10) # 10
+    my_list.append(2)              # 10 <--> 2
+    my_list.append(3)              # 10 <--> 2  <--> 3
+    my_list.append(40)             # 10 <--> 2  <--> 3 <--> 40
+    my_list.prepend(13)            # 13 <--> 10 <--> 2 <--> 3 <--> 40
+    my_list.prepend(99)            # 99 <--> 13 <--> 10 <--> 2 <--> 3 <--> 40
+    my_list.insert(2, "hello")     # 99 <--> 13 <--> hello <--> 10 <--> 2 <--> 3 <--> 40
+    my_list.insert(5, "world")     # 99 <--> 13 <--> hello <--> 10 <--> 2 <--> world <--> 3 <--> 40
+    my_list.remove(0)              # 13 <--> hello <--> 10 <--> 2 <--> world <--> 3 <--> 40
+    my_list.remove(200)            # 13 <--> hello <--> 10 <--> 2 <--> world <--> 3
+    my_list.remove(2)              # 13 <--> hello <--> 2 <--> world <--> 3
     # fmt: on
-    assert str(my_list) == "13 --> hello --> 2 --> world --> 3"
+    assert str(my_list) == "13 <--> hello <--> 2 <--> world <--> 3"
     assert len(my_list) == 5
     print(my_list)
 
