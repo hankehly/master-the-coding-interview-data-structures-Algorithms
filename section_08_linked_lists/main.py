@@ -40,18 +40,18 @@ class LinkedList:
 
         Time complexity: O(1)
         """
-        new_node = Node(value)
-        self.tail.next = new_node
-        self.tail = new_node
+        new = Node(value)
+        self.tail.next = new
+        self.tail = new
         self.length += 1
 
     def prepend(self, value: Any) -> None:
         """
         Time complexity: O(1)
         """
-        new_node = Node(value)
-        new_node.next = self.head
-        self.head = new_node
+        new = Node(value)
+        new.next = self.head
+        self.head = new
         self.length += 1
 
     def insert(self, index: int, value: Any) -> None:
@@ -76,12 +76,10 @@ class LinkedList:
         else:
             # Since all nodes have a reference to the next node
             # we should find the node immediately before the node at index
-            node_pre = self.head
-            for _ in range(index - 1):
-                node_pre = node_pre.next
-            new_node = Node(value)
-            new_node.next = node_pre.next
-            node_pre.next = new_node
+            pre = self.traverse_to_index(index - 1)
+            new = Node(value)
+            new.next = pre.next
+            pre.next = new
             self.length += 1
 
     def remove(self, index):
@@ -114,18 +112,21 @@ class LinkedList:
             logging.debug(f"Removing head node (value {self.head.value})")
             self.head = self.head.next
         else:
-            node_pre = self.head
-            for i in range(index_safe - 1):
-                logging.debug(f"> {i}: {node_pre.value}")
-                node_pre = node_pre.next
+            pre = self.traverse_to_index(index_safe - 1)
             if is_tail:
-                logging.debug(f"Removing tail node (value {node_pre.next.value})")
-                node_pre.next = None
+                logging.debug(f"Removing tail node (value {pre.next.value})")
+                pre.next = None
             else:
-                node_after = node_pre.next.next
-                node_pre.next = node_after
+                aft = pre.next.next
+                pre.next = aft
         logging.debug(f"After removal: {self}")
         self.length -= 1
+
+    def traverse_to_index(self, index: int) -> Node:
+        c = self.head
+        for _ in range(index):
+            c = c.next
+        return c
 
     def __len__(self):
         return self.length
@@ -159,6 +160,7 @@ def main():
     my_list.remove(2)           # 13 --> hello --> 2 --> world --> 3
     # fmt: on
     assert str(my_list) == "13 --> hello --> 2 --> world --> 3"
+    assert len(my_list) == 5
     print(my_list)
 
 
