@@ -64,9 +64,9 @@ class LinkedList:
         Time complexity: O(1) if first/last item in chain.
                          O(n) if somewhere in the middle.
         """
-        if index == 0:
+        if index <= 0:
             self.prepend(value)
-        elif index == self.length - 1:
+        elif index >= self.length - 1:
             self.append(value)
         else:
             # Since all nodes have a reference to the next node
@@ -78,6 +78,45 @@ class LinkedList:
             new_node.next = node_pre.next
             node_pre.next = new_node
             self.length += 1
+
+    def remove(self, index):
+        """
+        Assuming we have the following list:
+
+          index: 0     1     2     3
+          value: a --- b --- c --- d
+
+        To remove the value at index 2, I need a reference to index 1
+
+        last element (index == length - 1)
+            you still need a reference to the node before it.
+            loop through until you hit index - 1
+            set node.next = null
+            set tail to node
+        first element (index == 0)
+            set head = head.next. done
+        middle element (index > 0 && index < length - 1)
+            loop through until you hit index - 1
+            get reference to node pre
+            get reference to node after
+            set node_pre.next = node_after
+
+        Time complexity: O(1) if index == 0, otherwise O(n)
+        """
+        is_head = index <= 0
+        is_tail = index >= self.length - 1
+        if is_head:
+            self.head = self.head.next
+        else:
+            node_pre = self.head
+            for _ in range(index - 1):
+                node_pre = node_pre.next
+            if is_tail:
+                node_pre.next = None
+            else:
+                node_after = node_pre.next.next
+                node_pre.next = node_after
+        self.length -= 1
 
     def __len__(self):
         return self.length
@@ -100,9 +139,15 @@ def main():
     my_list = LinkedList(10)
     my_list.append(2)
     my_list.append(3)
+    my_list.append(40)
     my_list.prepend(13)
+    my_list.prepend(99)
     my_list.insert(2, "hello")
-    assert str(my_list) == "13 --> 10 --> hello --> 2 --> 3"
+    my_list.insert(5, "world")
+    my_list.remove(0)
+    my_list.remove(6)
+    my_list.remove(2)
+    assert str(my_list) == "13 --> hello --> 2 --> world --> 3"
     print(my_list)
 
 
