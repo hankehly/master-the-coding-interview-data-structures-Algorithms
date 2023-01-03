@@ -11,13 +11,13 @@ class Node:
         self.value = value
         self.next: Node = None
         # only used for doubly linked lists
-        self.parent: Node = None
+        self.prev: Node = None
 
 
 class DoublyLinkedList:
     """
     An implementation of a *doubly* linked list.
-    To make this a singly linked list, just remove the lines with "parent"
+    To make this a singly linked list, just remove the lines with "prev"
     """
 
     def __init__(self, value: Any) -> None:
@@ -31,11 +31,11 @@ class DoublyLinkedList:
         referencing the same object in memory. Therefore, an update to self.tail.next
         is reflected in self.head. This means we don't need to use a while loop to get
         the last element of self.head.
-        To make this a doubly linked list, we tell the new node its parent is self.tail.
+        To make this a doubly linked list, we tell the new node its prev is self.tail.
         Time complexity: O(1)
         """
         new = Node(value)
-        new.parent = self.tail
+        new.prev = self.tail
         self.tail.next = new
         self.tail = new
         self.length += 1
@@ -43,12 +43,12 @@ class DoublyLinkedList:
     def prepend(self, value: Any) -> None:
         """
         Same strategy as append.
-        To make this a doubly linked list, we tell the previous head its parent is the new node.
+        To make this a doubly linked list, we tell the previous head its prev is the new node.
         Time complexity: O(1)
         """
         new = Node(value)
         new.next = self.head
-        self.head.parent = new
+        self.head.prev = new
         self.head = new
         self.length += 1
 
@@ -64,7 +64,7 @@ class DoublyLinkedList:
         In other words, you need a reference to the node at 'index' and
         and the node immediately before it.
 
-        To make it a double linked list, we set the parent of the new node and
+        To make it a double linked list, we set the prev of the new node and
         the node after it.
 
         Time complexity: O(1) if first/last item in chain.
@@ -79,9 +79,9 @@ class DoublyLinkedList:
             new = Node(value)
             # link new node and node after it
             new.next = pre.next
-            pre.next.parent = new
+            pre.next.prev = new
             # link new node and node before it
-            new.parent = pre
+            new.prev = pre
             pre.next = new
             self.length += 1
 
@@ -113,7 +113,7 @@ class DoublyLinkedList:
         logging.debug(f"Before removal: {self}")
         if is_head:
             logging.debug(f"Removing head node (value {self.head.value})")
-            self.head.next.parent = None
+            self.head.next.prev = None
             self.head = self.head.next
         else:
             pre = self.traverse_to_index(index_safe - 1)
@@ -122,7 +122,7 @@ class DoublyLinkedList:
                 pre.next = None
             else:
                 aft = pre.next.next
-                aft.parent = pre
+                aft.prev = pre
                 pre.next = aft
         self.length -= 1
         logging.debug(f"After removal: {self}")
@@ -141,10 +141,10 @@ class DoublyLinkedList:
             for _ in range(index):
                 c = c.next
         else:
-            # iterate backwards using the node.parent reference
+            # iterate backwards using the node.prev reference
             c = self.tail
             for _ in range(self.length - 1, index, -1):
-                c = c.parent
+                c = c.prev
         return c
 
     def __len__(self):
@@ -153,12 +153,12 @@ class DoublyLinkedList:
     def __str__(self) -> str:
         """
         Builds a string in the format: (node.value) <--> (node.value) <--> ...
-        Arrows show parent/next relationship (ie. if relationship doesn't exist, no arrow)
+        Arrows show prev/next relationship (ie. if relationship doesn't exist, no arrow)
         """
         cursor = self.head
         s = str(cursor.value)
         while cursor.next:
-            if cursor.next.parent == cursor:
+            if cursor.next.prev == cursor:
                 s += " <-"
             s += "-> "
             s += str(cursor.next.value)
