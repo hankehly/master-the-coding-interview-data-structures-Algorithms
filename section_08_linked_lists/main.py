@@ -91,20 +91,14 @@ class LinkedList:
           index: 0     1     2     3
           value: a --- b --- c --- d
 
-        To remove the value at index 2, I need a reference to index 1
+        To remove the head, all we need to do is set self.head = self.head.next.
 
-        last element (index == length - 1)
-            you still need a reference to the node before it.
-            loop through until you hit index - 1
-            set node.next = null
-            set tail to node
-        first element (index == 0)
-            set head = head.next. done
-        middle element (index > 0 && index < length - 1)
-            loop through until you hit index - 1
-            get reference to node pre
-            get reference to node after
-            set node_pre.next = node_after
+        To remove the tail, we need to get a reference to the node before it,
+        then set it's "next" value to None.
+
+        To remove a node from the middle, we need a reference to the nodes before & after
+        it, then we set node_before.next = node_after and let the garbage collector clean
+        up the node at index.
 
         Time complexity: O(1) if index == 0, otherwise O(n)
         """
