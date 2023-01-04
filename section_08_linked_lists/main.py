@@ -25,6 +25,24 @@ class DoublyLinkedList:
         self.tail = self.head
         self.length = 1
 
+    def __len__(self):
+        return self.length
+
+    def __str__(self) -> str:
+        """
+        Builds a string in the format: (node.value) <--> (node.value) <--> ...
+        Arrows show prev/next relationship (ie. if relationship doesn't exist, no arrow)
+        """
+        cursor = self.head
+        s = str(cursor.value)
+        while cursor.next:
+            if cursor.next.prev == cursor:
+                s += " <-"
+            s += "-> "
+            s += str(cursor.next.value)
+            cursor = cursor.next
+        return s
+
     def append(self, value: Any) -> None:
         """
         self.tail is a reference to the last element of self.head, so they're
@@ -75,7 +93,7 @@ class DoublyLinkedList:
         elif index >= self.length - 1:
             self.append(value)
         else:
-            pre = self.traverse_to_index(index - 1)
+            pre = self._traverse_to_index(index - 1)
             new = Node(value)
             # link new node and node after it
             new.next = pre.next
@@ -116,7 +134,7 @@ class DoublyLinkedList:
             self.head.next.prev = None
             self.head = self.head.next
         else:
-            pre = self.traverse_to_index(index_safe - 1)
+            pre = self._traverse_to_index(index_safe - 1)
             if is_tail:
                 logging.debug(f"Removing tail node (value {pre.next.value})")
                 pre.next = None
@@ -127,7 +145,58 @@ class DoublyLinkedList:
         self.length -= 1
         logging.debug(f"After removal: {self}")
 
-    def traverse_to_index(self, index: int) -> Node:
+    def reverse(self) -> Node:
+        """
+        Time complexity: O(n)
+
+        We loop through the list, updating the reference between elements while keeping
+        references to surrounding elements to prevent losing our place.
+        https://www.udemy.com/course/master-the-coding-interview-data-structures-algorithms/learn/lecture/12324578
+
+            moving window
+        |-------------------|
+          *first    *second    *temp
+             |         |         |
+             1         10        16       88      NULL
+
+        There are 3 main steps in this algo:
+          1. Get reference to elements in window, and next element (temp)
+          2. (Reversal instruction)
+            Set second.next to *first and first.prev to *second
+          3. (Slide moving window)
+            Set *first to second position, and *second to temp position
+
+          Iterate until completion, then update head/tail nodes.
+
+        """
+        if self.length == 1:
+            return self.head
+
+        # 1. Here's how to accomplish reverse by copying the list
+        #   (simple to understand but temporarily uses 2x memory)
+        # new_list = DoublyLinkedList(self.head.value)
+        # curr = self.head
+        # while curr.next:
+        #     new_list.prepend(curr.next.value)
+        #     curr = curr.next
+        # self.head = new_list.head
+        # self.tail = new_list.tail
+
+        # 2. Without copying
+        #   (uses less memory but harder to understand)
+        first = self.head
+        second = first.next
+        while second:
+            temp = second.next
+            second.next = first
+            first.prev = second
+            first = second
+            second = temp
+        self.head.next = None
+        self.head = first
+        return self.head
+
+    def _traverse_to_index(self, index: int) -> Node:
         """
         Returns the node at index.
         To optimize the search, we start iterating from the side (ie head/tail) closest to the index.
@@ -147,24 +216,6 @@ class DoublyLinkedList:
                 c = c.prev
         return c
 
-    def __len__(self):
-        return self.length
-
-    def __str__(self) -> str:
-        """
-        Builds a string in the format: (node.value) <--> (node.value) <--> ...
-        Arrows show prev/next relationship (ie. if relationship doesn't exist, no arrow)
-        """
-        cursor = self.head
-        s = str(cursor.value)
-        while cursor.next:
-            if cursor.next.prev == cursor:
-                s += " <-"
-            s += "-> "
-            s += str(cursor.next.value)
-            cursor = cursor.next
-        return s
-
 
 def main():
     # fmt: off
@@ -179,8 +230,9 @@ def main():
     my_list.remove(0)              # 13 <--> hello <--> 10 <--> 2 <--> world <--> 3 <--> 40
     my_list.remove(200)            # 13 <--> hello <--> 10 <--> 2 <--> world <--> 3
     my_list.remove(2)              # 13 <--> hello <--> 2 <--> world <--> 3
+    my_list.reverse()              # 3 <--> world <--> 2 <--> hello <--> 13
     # fmt: on
-    assert str(my_list) == "13 <--> hello <--> 2 <--> world <--> 3"
+    assert str(my_list) == "3 <--> world <--> 2 <--> hello <--> 13"
     assert len(my_list) == 5
     print(my_list)
 
