@@ -145,7 +145,7 @@ class DoublyLinkedList:
         self.length -= 1
         logging.debug(f"After removal: {self}")
 
-    def reverse(self) -> Node:
+    def reverse(self) -> "DoublyLinkedList":
         """
         Time complexity: O(n)
 
@@ -170,7 +170,7 @@ class DoublyLinkedList:
 
         """
         if self.length == 1:
-            return self.head
+            return self
 
         # 1. Here's how to accomplish reverse by copying the list
         #   (simple to understand but temporarily uses 2x memory)
@@ -185,6 +185,7 @@ class DoublyLinkedList:
         # 2. Without copying
         #   (uses less memory but harder to understand)
         first = self.head
+        self.tail = self.head
         second = first.next
         while second:
             temp = second.next
@@ -194,7 +195,7 @@ class DoublyLinkedList:
             second = temp
         self.head.next = None
         self.head = first
-        return self.head
+        return self
 
     def _traverse_to_index(self, index: int) -> Node:
         """
@@ -233,6 +234,8 @@ def main():
     my_list.reverse()              # 3 <--> world <--> 2 <--> hello <--> 13
     # fmt: on
     assert str(my_list) == "3 <--> world <--> 2 <--> hello <--> 13"
+    assert my_list.head.value == 3
+    assert my_list.tail.value == 13
     assert len(my_list) == 5
     print(my_list)
 
