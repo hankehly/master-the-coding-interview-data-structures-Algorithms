@@ -72,52 +72,43 @@ class StackBuiltWithLinkedList:
 
 class StackBuiltWithArray:
     def __init__(self) -> None:
-        self.top: Node = None
-        self.bottom: Node = None
-        self.length = 0
-        self._data = []
+        self.data = []
 
     @property
     def empty(self) -> bool:
-        # We could also just do len(self._data) which is O(1)
-        # but keeping the counter for the sake of example
         return self.length == 0
+
+    @property
+    def length(self) -> int:
+        return len(self.data)
+
+    @property
+    def top(self) -> Node:
+        if self.empty:
+            return None
+        return self.data[-1]
+
+    @property
+    def bottom(self) -> Node:
+        if self.empty:
+            return None
+        return self.data[0]
 
     def peek(self) -> Any:
         return self.top.value
 
     def push(self, value: Any) -> None:
         logging.debug(f"[push] Pushing {value} on the stack")
-        node = Node(value)
-        if self.empty:
-            self.top = node
-            self.bottom = node
-            self._data.append(node)
-            self.length = 1
-        else:
-            self._data.append(node)
-            self.top = node
-            self.length += 1
-        logging.debug(f"[push] Length of self._data is now {len(self._data)}")
+        new_node = Node(value)
+        self.data.append(new_node)
 
     def pop(self) -> Any:
-        logging.debug(f"[pop] Length of self._data is {len(self._data)}")
         if self.empty:
             return None
-        node = self._data.pop()
+        node = self.data.pop()
         logging.debug(
-            f"[pop] Popped {node.value} from stack. Length is now {len(self._data)}"
+            f"[pop] Popped {node.value} from stack. Length is now {len(self.data)}"
         )
-        logging.debug(
-            f"[pop] Will decrease length from {self.length} to {self.length - 1}"
-        )
-        self.length -= 1
-        if self.length == 0:
-            self.top = None
-            self.bottom = None
-        else:
-            logging.debug(f"[pop] Setting top to self._data[{self.length - 1}]")
-            self.top = self._data[self.length - 1]
         return node.value
 
 
