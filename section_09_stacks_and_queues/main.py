@@ -81,21 +81,20 @@ class StackBuiltWithArray:
     def peek(self) -> Any:
         if self.empty:
             return None
-        return self._data[-1].value
+        return self._data[-1]
 
     def push(self, value: Any) -> None:
         logging.debug(f"[push] Pushing {value} onto the stack.")
-        new_node = Node(value)
-        self._data.append(new_node)
+        self._data.append(value)
 
     def pop(self) -> Any:
         if self.empty:
             return None
-        node = self._data.pop()
+        value = self._data.pop()
         logging.debug(
-            f"[pop] Popped {node.value} from the stack. Length is now {len(self._data)}."
+            f"[pop] Popped {value} from the stack. Length is now {len(self._data)}."
         )
-        return node.value
+        return value
 
 
 def main():
