@@ -134,6 +134,10 @@ class Queue:
     def dequeue(self) -> Any:
         if self.empty:
             return None
+        # Unset _last so that we don't accidentally maintain a reference to it
+        # after we remove the last item from the queue.
+        elif self._first == self._last:
+            self._last = None
         old_first = self._first
         new_first = self._first.next
         logging.debug(
@@ -176,6 +180,7 @@ def main():
     assert queue.dequeue() == "Pavel"
     assert queue.dequeue() == "Samir"
     assert queue.empty
+    assert queue._first == queue._last == None
     # Sample output
     # [enqueue] Joy, length 0 -> 1
     # [enqueue] Matt, length 1 -> 2
