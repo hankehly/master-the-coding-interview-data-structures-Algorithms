@@ -41,8 +41,6 @@ class BinarySearchTree:
     def lookup(self, value: Any) -> Node:
         if self._root is None:
             return None
-        elif self._root.value == value:
-            return self._root
         else:
             node = self._root
             while True:
@@ -79,9 +77,11 @@ def main():
     bst.insert(6)
     bst.insert(15)
     bst.insert(170)
-    # {"value": 9, "left": {"value": 4, "left": {"value": 1, "left": null, "right": null}, "right": {"value": 6, "left": null, "right": null}}, "right": {"value": 20, "left": {"value": 15, "left": null, "right": null}, "right": {"value": 170, "left": null, "right": null}}}
-    print(json.dumps(traverse(bst._root)))
+    # Check tree structure
+    # print(json.dumps(traverse(bst._root)))
+    # Check that lookup returns the correct nodes
     assert bst.lookup(6).value == 6
+    assert bst.lookup(9).value == 9
     assert bst.lookup(15).value == 15
     assert bst.lookup(40) == None
 
