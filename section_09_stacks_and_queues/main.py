@@ -116,6 +116,8 @@ class Queue:
         return self._length == 0
 
     def peek(self) -> Any:
+        if self.empty:
+            return None
         return self._first.value
 
     def enqueue(self, value: Any) -> None:
@@ -130,6 +132,8 @@ class Queue:
         self._length += 1
 
     def dequeue(self) -> Any:
+        if self.empty:
+            return None
         old_first = self._first
         new_first = self._first.next
         logging.debug(
@@ -158,6 +162,7 @@ def main():
 
     queue = Queue()
     assert queue.empty
+    assert queue.peek() is None
     queue.enqueue("Joy")
     assert queue.peek() == "Joy"
     assert not queue.empty
