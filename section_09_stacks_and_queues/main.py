@@ -101,7 +101,7 @@ class StackBuiltWithArray:
         return value
 
 
-class Queue:
+class QueueBuiltWithLinkedList:
     """
     An implementation of a queue using a singly linked list
     """
@@ -149,6 +149,70 @@ class Queue:
         return old_first.value
 
 
+class QueueBuiltWithStacks:
+    """
+    An implementation of a queue using stacks.
+
+    The idea here is to keep two stacks. One is for pushing items, and one is for popping items.
+    But before we do any push/pop operation, we move all the items to that stack so that the
+    order of elements is maintained.
+
+    You can picture two stacks whose "bottoms" face each other.
+
+                    stack1   stack2
+      push here >>   -----| |-----  >> pop from here
+
+    Let's "enqueue" 2 new items, "x" then "y":
+
+                    stack1   stack2
+                     ---yx| |-----
+
+    Now let's "dequeue" an item. "x" should come first because this is a FIFO queue.
+    To achieve this, we need to pop all the items from stack1 and move them to stack2.
+
+                    stack1   stack2
+                     -----| |yx---
+
+    Now we can pop from stack2 to get "x"
+
+                    stack1   stack2
+                     -----| |y----   >> "x" popped from stack
+
+    To push new items, we just reverse the process.
+    """
+
+    def __init__(self) -> None:
+        self._front = []
+        self._back = []
+
+    @property
+    def empty(self) -> bool:
+        sum_len = len(self._front) + len(self._back)
+        return sum_len == 0
+
+    def peek(self) -> Any:
+        if self.empty:
+            return None
+        elif len(self._front) > 0:
+            return self._front[-1]
+        else:
+            return self._back[0]
+
+    def enqueue(self, value: Any) -> None:
+        """
+        To maintain order in the queue, move all the items from front to back stack,
+        then push the new item to the back stack.
+        """
+        for _ in range(len(self._front)):
+            self._back.append(self._front.pop())
+        self._back.append(value)
+
+    def dequeue(self) -> Any:
+        for _ in range(len(self._back)):
+            self._front.append(self._back.pop())
+        return self._front.pop()
+
+
 def main():
     stack1 = StackBuiltWithLinkedList()
     stack2 = StackBuiltWithArray()
@@ -164,32 +228,24 @@ def main():
         assert stack.empty
         assert stack.pop() is None
 
-    queue = Queue()
-    assert queue.empty
-    assert queue.peek() is None
-    queue.enqueue("Joy")
-    assert queue.peek() == "Joy"
-    assert not queue.empty
-    queue.enqueue("Matt")
-    assert queue.peek() == "Joy"
-    queue.enqueue("Pavel")
-    queue.enqueue("Samir")
-    assert queue.dequeue() == "Joy"
-    assert queue.peek() == "Matt"
-    assert queue.dequeue() == "Matt"
-    assert queue.dequeue() == "Pavel"
-    assert queue.dequeue() == "Samir"
-    assert queue.empty
-    assert queue._first == queue._last == None
-    # Sample output
-    # [enqueue] Joy, length 0 -> 1
-    # [enqueue] Matt, length 1 -> 2
-    # [enqueue] Pavel, length 2 -> 3
-    # [enqueue] Samir, length 3 -> 4
-    # [dequeue] Joy length 4 -> 3, first Joy -> Matt
-    # [dequeue] Matt length 3 -> 2, first Matt -> Pavel
-    # [dequeue] Pavel length 2 -> 1, first Pavel -> Samir
-    # [dequeue] Samir length 1 -> 0, first Samir -> None
+    queue1 = QueueBuiltWithLinkedList()
+    queue2 = QueueBuiltWithStacks()
+    for queue in (queue1, queue2):
+        assert queue.empty
+        assert queue.peek() is None
+        queue.enqueue("Joy")
+        assert queue.peek() == "Joy"
+        assert not queue.empty
+        queue.enqueue("Matt")
+        assert queue.peek() == "Joy"
+        queue.enqueue("Pavel")
+        queue.enqueue("Samir")
+        assert queue.dequeue() == "Joy"
+        assert queue.peek() == "Matt"
+        assert queue.dequeue() == "Matt"
+        assert queue.dequeue() == "Pavel"
+        assert queue.dequeue() == "Samir"
+        assert queue.empty
 
 
 if __name__ == "__main__":
