@@ -42,20 +42,15 @@ class BinarySearchTree:
         if self._root is None:
             return None
         else:
-            node = self._root
-            while True:
-                if value > node.value:
-                    if node.right is None:
-                        return None
-                    else:
-                        node = node.right
-                elif value < node.value:
-                    if node.left is None:
-                        return None
-                    else:
-                        node = node.left
+            current = self._root
+            while current:
+                if value > current.value:
+                    current = current.right
+                elif value < current.value:
+                    current = current.left
                 else:
-                    return node
+                    return current
+            return None
 
 
 def traverse(node: Node):
