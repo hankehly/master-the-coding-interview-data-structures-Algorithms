@@ -1,5 +1,9 @@
-import json
+import logging
+import os
 from typing import Any
+
+LOGLEVEL = os.getenv("LOGLEVEL", "INFO").upper()
+logging.basicConfig(level=LOGLEVEL)
 
 
 class Node:
@@ -69,6 +73,12 @@ class BinarySearchTree:
         curr = node
         while curr.left:
             curr = curr.left
+        return curr
+
+    def find_max(self, node: Node) -> Node:
+        curr = node
+        while curr.right:
+            curr = curr.right
         return curr
 
     def successor(self, node: Node):
@@ -196,7 +206,104 @@ def traverse(node: Node):
     return tree
 
 
-def main():
+class BinaryMaxHeap:
+    def __init__(self):
+        self._data = []
+
+    def __repr__(self) -> str:
+        return str(self._data)
+
+    @property
+    def empty(self) -> bool:
+        return len(self._data) == 0
+
+    def get_parent_position(self, index: int) -> int:
+        """
+        Returns the INDEX of the parent of item at `index`
+        To get the parent index of a node at index N, we take N // 2 (integer division)
+        """
+        return index // 2
+
+    def insert(self, v: int):
+        """
+        aka "enqueue"
+
+        Let's say we want to insert 9 in this heap:
+          [6, 4, 3, 2, 1]
+
+        Here are the steps.
+        1. Add to last place
+          [6, 4, 3, 2, 1, 9]
+        2. Compare with parent, swap if parent < value
+           Parent is at index(9) // 2, so 5//2=2, which corresponds to value 3.
+           3 < 9, so swap them.
+          [6, 4, 9, 2, 1, 3]
+        3. Continue..
+           index(9) // 2, so 2 // 2, so 1
+           4 < 9, so swap them.
+          [6, 9, 4, 2, 1, 3]
+        4. Continue..
+           index(9) // 2, so 1 // 2, so 0
+           6 < 9, so swap them.
+          [9, 6, 4, 2, 1, 3]
+
+          Done!
+        """
+        self._data.append(v)
+        if len(self._data) == 1:
+            return
+        # Shift-up operation:
+        # You will always add values to the end of the array, so the added value will always be a leaf.
+        # This means you only have to worry about checking ABOVE it.
+        curr_pos = len(self._data) - 1
+        parent_pos = self.get_parent_position(curr_pos)
+        logging.debug(
+            f"compare parent(i={parent_pos}, v={self._data[parent_pos]}) and "
+            f"current(i={curr_pos}, v={self._data[curr_pos]})"
+        )
+        while self._data[parent_pos] < self._data[curr_pos]:
+            logging.debug(f"swap parent(i={parent_pos}) for current(i={curr_pos})")
+            # fmt: off
+            self._data[parent_pos], self._data[curr_pos] = self._data[curr_pos], self._data[parent_pos]
+            curr_pos = parent_pos
+            parent_pos = self.get_parent_position(curr_pos)
+            # fmt: on
+            logging.debug(
+                f"compare parent(i={parent_pos}, v={self._data[parent_pos]}) and "
+                f"current(i={curr_pos}, v={self._data[curr_pos]})"
+            )
+
+    def extract_max(self):
+        """
+        aka "dequeue"
+        """
+        pass
+
+    def find_max(self):
+        """
+        O(1)
+        """
+        if self.empty:
+            return None
+        return self._data[0]
+
+
+class PriorityQueue:
+    """
+    You can see that a priority queue can be implemented as just a Binary Heap
+    """
+
+    def __init__(self):
+        self._binary_heap = BinaryMaxHeap()
+
+    def enqueue(self, v: int):
+        self._binary_heap.insert(v)
+
+    def dequeue(self, v: int):
+        return self._binary_heap.extract_max()
+
+
+def test_binary_search_tree():
     # Build this tree:
     #      9
     #    /   \
@@ -261,6 +368,26 @@ def main():
         },
     }
     assert act == exp
+
+
+def test_binary_heap():
+    heap = BinaryMaxHeap()
+    heap.insert(1)
+    heap.insert(2)
+    assert heap._data == [2, 1]
+    heap.insert(4)
+    assert heap._data == [4, 2, 1]
+    heap.insert(6)
+    assert heap._data == [6, 4, 1, 2]
+    heap.insert(3)
+    assert heap._data == [6, 4, 3, 2, 1]
+    heap.insert(9)
+    assert heap._data == [9, 6, 4, 2, 1, 3]
+
+
+def main():
+    test_binary_search_tree()
+    test_binary_heap()
 
 
 if __name__ == "__main__":
