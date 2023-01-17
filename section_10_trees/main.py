@@ -208,8 +208,12 @@ def traverse(node: Node):
 
 class BinaryMaxHeap:
     """
+    A naive implementation of a binary max heap.
+
     https://visualgo.net/en/heap/print
     https://en.wikipedia.org/wiki/Binary_heap
+
+    Note: Does not handle duplicates. Logs the whole array if LOGLEVEL=debug.
     """
 
     def __init__(self):
@@ -222,12 +226,27 @@ class BinaryMaxHeap:
     def empty(self) -> bool:
         return len(self._data) == 0
 
-    def get_parent_position(self, index: int) -> int:
+    def _iparent(self, i: int) -> int:
         """
-        Returns the INDEX of the parent of item at `index`
+        Returns the INDEX of the parent of item at index `i`
         To get the parent index of a node at index N, we take N // 2 (integer division)
         """
-        return index // 2
+        assert i > 0
+        return i // 2
+
+    def _ileft(self, i: int) -> int:
+        """
+        Note: Be careful with i=0
+        """
+        assert i > 0
+        return i * 2
+
+    def _iright(self, i: int) -> int:
+        """
+        Note: Be careful with i=0
+        """
+        assert i > 0
+        return i * 2 + 1
 
     def insert(self, v: int):
         """
@@ -268,36 +287,102 @@ class BinaryMaxHeap:
 
           Done!
         """
+        logging.debug(f"insert({v})")
         self._data.append(v)
+        logging.debug(f"after insert: {self._data}")
         if len(self._data) == 1:
             return
-        self._shift_up(len(self._data) - 1)
+        # You will always add values to the end of the array, so the added value will always be a leaf.
+        # This means you only have to worry about checking ABOVE it.
+        self._shift_up(len(self._data))
 
-    def _shift_up(self, i):
+    def _shift_up(self, i: int):
         """
-        You will always add values to the end of the array, so the added value will always be a leaf.
-        This means you only have to worry about checking ABOVE it.
+        See `insert` docstring for an example of how this works.
         """
+        logging.debug(f"shift_up({i})")
         curr_pos = i
-        parent_pos = self.get_parent_position(curr_pos)
-        logging.debug(
-            f"compare parent(i={parent_pos}, v={self._data[parent_pos]}) and "
-            f"current(i={curr_pos}, v={self._data[curr_pos]})"
-        )
-        while self._data[parent_pos] < self._data[curr_pos]:
+        parent_pos = self._iparent(curr_pos)
+        while parent_pos and self._data[parent_pos - 1] < self._data[curr_pos - 1]:
+            logging.debug(f"before shift_up: {self._data}")
             logging.debug(f"swap parent(i={parent_pos}) for current(i={curr_pos})")
             # fmt: off
-            self._data[parent_pos], self._data[curr_pos] = self._data[curr_pos], self._data[parent_pos]
+            self._data[parent_pos-1], self._data[curr_pos-1] = self._data[curr_pos-1], self._data[parent_pos-1]
+            logging.debug(f"after shift_up: {self._data}")
             curr_pos = parent_pos
-            parent_pos = self.get_parent_position(curr_pos)
+            parent_pos = self._iparent(curr_pos)
+            logging.debug(f"curr_pos={curr_pos}, parent_pos={parent_pos}")
             # fmt: on
+
+    def _shift_down(self, i: int):
+        """
+        While there is a child greater than the current vertex, swap.
+        """
+        logging.debug(f"shift_down({i})")
+        curr_i = i
+        child_i = self._greater_child_position(curr_i)
+        while child_i:
+            logging.debug(f"before shift_down: {self._data}")
             logging.debug(
-                f"compare parent(i={parent_pos}, v={self._data[parent_pos]}) and "
-                f"current(i={curr_pos}, v={self._data[curr_pos]})"
+                f"shift_down: swap child(i={child_i},v={self._data[child_i-1]}) "
+                f"for current(i={curr_i},v={self._data[curr_i-1]}) (1-indexed)"
             )
+            # fmt: off
+            self._data[curr_i - 1], self._data[child_i - 1] = self._data[child_i - 1], self._data[curr_i - 1]
+            # fmt: on
+            logging.debug(f"after shift_down: {self._data}")
+            curr_i = child_i
+            child_i = self._greater_child_position(curr_i)
+
+    def _greater_child_position(self, i: int) -> int:
+        assert i > 0
+        vself = self._data[i - 1]
+        a_len = len(self._data)
+        ileft = self._ileft(i)
+        iright = self._iright(i)
+        if iright <= a_len:
+            # has both
+            vleft = self._data[ileft - 1]
+            vright = self._data[iright - 1]
+            if vleft > vright and vleft > vself:
+                return ileft
+            elif vright > vleft and vright > vself:
+                return iright
+        elif ileft <= a_len:
+            # has left only
+            vleft = self._data[ileft - 1]
+            if vleft > vself:
+                return ileft
+        # has no children greater than itself
+        return None
 
     def extract_max(self):
-        pass
+        """
+        The max element will always be self._data[0] (unless root is NULL)
+
+        When we remove the max element, we have to replace it with something.
+        That something is the last (leaf) element. We do this to maintain a compact (no spaces)
+        structure. However, moving a leaf to the first position will probably violate
+        the Max Heap property, so we need to then "shift down" the first element by
+        comparing it to its children and swapping until we meet this requirement.
+        """
+        logging.debug(f"extract_max()")
+        if self.empty:
+            return None
+        elif len(self._data) == 1:
+            return self._data.pop()
+        else:
+            # Make the initial swap (root node for last element)
+            logging.debug(f"starting point: {self._data}")
+            self._data[0], self._data[-1] = self._data[-1], self._data[0]
+            logging.debug(f"after initial swap: {self._data}")
+            # Get the last value (which we know is the max) for returning later
+            max_value = self._data.pop()
+            logging.debug(f"after pop: {self._data}")
+            # Shift the element at index 0 downward.
+            # Use 1-based indices to prevent zero-multiplication during child search.
+            self._shift_down(1)
+            return max_value
 
     def find_max(self):
         """
@@ -310,7 +395,38 @@ class BinaryMaxHeap:
 
 class PriorityQueue:
     """
-    You can see that a priority queue can be implemented as just a Binary Heap
+    You can see that a priority queue can be implemented as just a Binary Heap.
+
+    Here is python's implementation.
+    https://docs.python.org/3/library/heapq.html
+
+    It also has some interesting suggestions for how to implement a Priority Queue.
+    https://docs.python.org/3/library/heapq.html#priority-queue-implementation-notes
+
+    Example:
+    We store a heap as an array.
+    >>> import heapq
+    >>> heap = []
+
+    heapq only supports Min heap, so to make it a Max heap, multiply
+    values by -1 before adding. This will keep the numbers in Max order (assuming
+    you multiply them again by -1 after extracting the head)
+    >>> heapq.heappush(heap, 5*-1)
+    >>> heapq.heappush(heap, 10*-1)
+    >>> heap
+    [-10, -5]
+    >>> heapq.heappush(heap, 15*-1)
+    >>> heapq.heappush(heap, 20*-1)
+    >>> heap
+    [-20, -15, -10, -5]
+    >>> heapq.heappush(heap, 3*-1)
+    >>> heap
+    [-20, -15, -10, -5, -3]
+    >>> heapq.heappop(heap) * -1
+    20
+
+    Here's an implementation example using heapq.
+    https://github.com/stevenhalim/cpbook-code/blob/master/ch2/nonlineards/priority_queue.py
     """
 
     def __init__(self):
@@ -397,16 +513,24 @@ def test_binary_heap():
     assert heap._data == [2, 1]
     heap.insert(4)
     assert heap.find_max() == 4
-    assert heap._data == [4, 2, 1]
+    assert heap._data == [4, 1, 2]
     heap.insert(6)
     assert heap.find_max() == 6
-    assert heap._data == [6, 4, 1, 2]
+    assert heap._data == [6, 4, 2, 1]
     heap.insert(3)
     assert heap.find_max() == 6
-    assert heap._data == [6, 4, 3, 2, 1]
+    assert heap._data == [6, 4, 2, 1, 3]
     heap.insert(9)
     assert heap.find_max() == 9
-    assert heap._data == [9, 6, 4, 2, 1, 3]
+    assert heap._data == [9, 4, 6, 1, 3, 2]
+    # extract_max operation should return elements in max->min order
+    assert heap.extract_max() == 9
+    assert heap.extract_max() == 6
+    assert heap.extract_max() == 4
+    assert heap.extract_max() == 3
+    assert heap.extract_max() == 2
+    assert heap.extract_max() == 1
+    assert heap.extract_max() is None
 
 
 def main():
