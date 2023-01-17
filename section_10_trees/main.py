@@ -176,7 +176,6 @@ class BinarySearchTree:
             # Set the successor's children to the removal target node's children
             succ.left = node.left
             succ.right = node.right
-            # import pdb; pdb.set_trace()
 
             # Set removal target node children's parent to successor
             if node.left:
