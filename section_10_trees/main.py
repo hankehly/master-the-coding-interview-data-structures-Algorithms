@@ -234,8 +234,12 @@ def main():
     assert bst.lookup(9).value == 9
     assert bst.lookup(15).value == 15
     assert bst.lookup(40) == None
+
+    # Check that find_min returns the minimum value at a specific subtree
     assert bst.find_min(bst.lookup(9)).value == 1
     assert bst.find_min(bst.lookup(20)).value == 15
+
+    # Check that successor returns the smallest value greater than the target
     assert bst.successor(bst.lookup(6)).value == 9
     assert bst.successor(bst.lookup(170)) is None
 
