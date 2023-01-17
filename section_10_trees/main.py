@@ -209,6 +209,7 @@ def traverse(node: Node):
 class BinaryMaxHeap:
     """
     A naive implementation of a binary max heap.
+    https://visualgo.net/en/heap?slide=5
 
     https://visualgo.net/en/heap/print
     https://en.wikipedia.org/wiki/Binary_heap
