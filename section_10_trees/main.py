@@ -376,12 +376,16 @@ def test_binary_heap():
     heap.insert(2)
     assert heap._data == [2, 1]
     heap.insert(4)
+    assert heap.find_max() == 4
     assert heap._data == [4, 2, 1]
     heap.insert(6)
+    assert heap.find_max() == 6
     assert heap._data == [6, 4, 1, 2]
     heap.insert(3)
+    assert heap.find_max() == 6
     assert heap._data == [6, 4, 3, 2, 1]
     heap.insert(9)
+    assert heap.find_max() == 9
     assert heap._data == [9, 6, 4, 2, 1, 3]
 
 
