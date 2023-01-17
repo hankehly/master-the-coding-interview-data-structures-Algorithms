@@ -207,6 +207,11 @@ def traverse(node: Node):
 
 
 class BinaryMaxHeap:
+    """
+    https://visualgo.net/en/heap/print
+    https://en.wikipedia.org/wiki/Binary_heap
+    """
+
     def __init__(self):
         self._data = []
 
@@ -226,7 +231,21 @@ class BinaryMaxHeap:
 
     def insert(self, v: int):
         """
-        aka "enqueue"
+        To insert into a binary heap, we first add the new element at the last position of the array,
+        then "shift up" until the tree maintains the Max Heap property (the parent of each vertex is
+        always bigger than the vertex itself - except for the root element)
+
+        We manage the data as an array. The index corresponds to the position of the element.
+          [6, 4, 3, 2, 1]
+        Would look like this..
+
+                  6        < position 1
+                 / \
+                4   3      < positions 2, 3
+               / \
+              2   1        < positions 4, 5
+
+        We always add elements from LEFT to RIGHT.
 
         Let's say we want to insert 9 in this heap:
           [6, 4, 3, 2, 1]
@@ -252,10 +271,14 @@ class BinaryMaxHeap:
         self._data.append(v)
         if len(self._data) == 1:
             return
-        # Shift-up operation:
-        # You will always add values to the end of the array, so the added value will always be a leaf.
-        # This means you only have to worry about checking ABOVE it.
-        curr_pos = len(self._data) - 1
+        self._shift_up(len(self._data) - 1)
+
+    def _shift_up(self, i):
+        """
+        You will always add values to the end of the array, so the added value will always be a leaf.
+        This means you only have to worry about checking ABOVE it.
+        """
+        curr_pos = i
         parent_pos = self.get_parent_position(curr_pos)
         logging.debug(
             f"compare parent(i={parent_pos}, v={self._data[parent_pos]}) and "
@@ -274,9 +297,6 @@ class BinaryMaxHeap:
             )
 
     def extract_max(self):
-        """
-        aka "dequeue"
-        """
         pass
 
     def find_max(self):
