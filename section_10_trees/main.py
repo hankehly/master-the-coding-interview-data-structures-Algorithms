@@ -11,18 +11,13 @@ class Node:
 
     @property
     def nchildren(self) -> int:
-        return len(filter(None, (self.left, self.right)))
-
-    def get_only_child(self) -> "Node":
-        if self.nchildren != 1:
-            raise Exception(f"Node has {self.nchildren}")
-        elif self.left:
-            return self.left
-        else:
-            return self.right
+        return len(list(filter(None, (self.left, self.right))))
 
     def __str__(self) -> str:
         return str(self.value)
+
+    def __repr__(self) -> str:
+        return str(self)
 
     def __eq__(self, node: "Node") -> bool:
         return self.value == node.value
@@ -92,62 +87,107 @@ class BinarySearchTree:
                    /  \
                  61    71
                       /  \
-                     67  105
+                     67  95
                     /
                    65
 
         The successor of 64 is 65.
-        The successor of 105 is 96.
+        The successor of 95 is 96.
         The successor of 67 is 71.
         etc..
         """
         if node.right:
             return self.find_min(node.right)
-        else:
-            curr = node
-            # keep traversing upwards until we make a right turn
-            while curr.parent and curr == curr.parent.right:
-                curr = curr.parent
-            if curr.parent is None:
-                return None  # there is no successor
-            if curr == curr.parent.left:
-                return curr.parent
+        curr = node
+        # Keep traversing upwards until we make a 'right turn'
+        while curr.parent and curr == curr.parent.right:
+            curr = curr.parent
+        # At this point, the parent either doesn't exist, or we made a 'right turn'
+        if curr.parent is None:
+            return None  # there is no successor
+        if curr == curr.parent.left:
+            return curr.parent
 
     def remove(self, value: Any):
         """
-        xxx
+        This was tough! I had to use visualgo to understand the steps.
+        https://visualgo.net/en/bst
+
+        There are 3 cases to consider:
+         1. Leaf node
+         2. Single child
+         3. 2 children
+
+        In case (1) we just delete the node.
+        In case (2) we "bypass" the node by connecting the parent/children together.
+        In case (3) we have to find the appropriate "successor" (which is defined above) then replace the node with it.
+
+        The hardest part was the successor replacement. To figure it out, I visualized the steps in draw.io.
+        See the README for details.
         """
-        if self._root is None:
-            return None
-        # 1. Find the target node and its predecessor
-        curr = self._root
-        while curr:
-            if value > curr.value:
-                curr = curr.right
-            elif value < curr.value:
-                curr = curr.left
-            else:
-                break
-        # If this is a leaf node, just delete it and delete parent.left
-        # or parent.right accordingly
-        if curr.nchildren == 0:
-            if curr == self._root:
+        node = self.lookup(value)
+        if node is None:
+            return
+        # If this is a leaf node, just delete it
+        elif node.nchildren == 0:
+            if node == self._root:
                 self._root = None
             else:
-                if curr == curr.parent.left:
-                    curr.parent.left = None
+                if node == node.parent.left:
+                    node.parent.left = None
                 else:
-                    curr.parent.right = None
-        elif curr.nchildren == 1:
-            # bypass current and set its child as the child of curr.parent
-            child = curr.get_only_child()
-            if curr == curr.parent.left:
-                curr.parent.left = child
-            elif curr == curr.parent.right:
-                curr.parent.right = child
+                    node.parent.right = None
+        # If node has 1 child, bypass node and set its child as the child of node.parent
+        elif node.nchildren == 1:
+            succ = node.right if node.left is None else node.left
+            if node.value < node.parent.value:
+                node.parent.left = succ
+            else:
+                node.parent.right = succ
+        # Otherwise, replace node with its successor
         else:
+            succ = self.successor(node)
 
-            pass
+            # Update the target's parent to point to 'successor' as its child
+            # If no parent exists, this is the root node, so set it to NULL and return, we're done!
+            if node.parent:
+                if node.value < node.parent.value:
+                    node.parent.left = succ
+                else:
+                    node.parent.right = succ
+            else:
+                self._root = None
+                return
+
+            # Update the successor's parent to point to NULL as it's child.
+            # (ie disconnect the successor from its original parent)
+            if succ.value < succ.parent.value:
+                succ.parent.left = None
+            else:
+                succ.parent.right = None
+
+            # Set successor's parent to the removal target node's parent
+            succ.parent = node.parent
+
+            # Set the removal target node's parent to NULL
+            # (ie. disconnect target node from parent)
+            node.parent = None
+
+            # Set the successor's children to the removal target node's children
+            succ.left = node.left
+            succ.right = node.right
+            # import pdb; pdb.set_trace()
+
+            # Set removal target node children's parent to successor
+            if node.left:
+                node.left.parent = succ
+            if node.right:
+                node.right.parent = succ
+
+            # Set removal node target children to NULL
+            # (maybe unnecessary, but I want to isolate target node completely)
+            node.left = None
+            node.right = None
 
 
 def traverse(node: Node):
@@ -158,9 +198,12 @@ def traverse(node: Node):
 
 
 def main():
-    #     9
-    #  4    20
-    # 1 6  15 170
+    # Build this tree:
+    #      9
+    #    /   \
+    #   4     20
+    #  / \    / \
+    # 1   6 15  170
     bst = BinarySearchTree()
     bst.insert(9)
     bst.insert(4)
@@ -169,8 +212,24 @@ def main():
     bst.insert(6)
     bst.insert(15)
     bst.insert(170)
+
     # Check tree structure
-    # print(json.dumps(traverse(bst._root)))
+    act = traverse(bst._root)
+    exp = {
+        "value": 9,
+        "left": {
+            "value": 4,
+            "left": {"value": 1, "left": None, "right": None},
+            "right": {"value": 6, "left": None, "right": None},
+        },
+        "right": {
+            "value": 20,
+            "left": {"value": 15, "left": None, "right": None},
+            "right": {"value": 170, "left": None, "right": None},
+        },
+    }
+    assert act == exp
+
     # Check that lookup returns the correct nodes
     assert bst.lookup(6).value == 6
     assert bst.lookup(9).value == 9
@@ -180,11 +239,25 @@ def main():
     assert bst.find_min(bst.lookup(20)).value == 15
     assert bst.successor(bst.lookup(6)).value == 9
     assert bst.successor(bst.lookup(170)) is None
-    # bst.insert(100)
-    # bst.insert(180)
-    # bst.remove(170)
-    # bst.remove(20)
-    # print(json.dumps(traverse(bst._root)))
+
+    # Remove some nodes and re-check tree structure
+    bst.remove(20)
+    bst.remove(1)
+    act = traverse(bst._root)
+    exp = {
+        "value": 9,
+        "left": {
+            "value": 4,
+            "left": None,
+            "right": {"value": 6, "left": None, "right": None},
+        },
+        "right": {
+            "value": 170,
+            "left": {"value": 15, "left": None, "right": None},
+            "right": None,
+        },
+    }
+    assert act == exp
 
 
 if __name__ == "__main__":
