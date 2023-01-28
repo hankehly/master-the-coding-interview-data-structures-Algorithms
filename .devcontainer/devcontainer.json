@@ -1,0 +1,13 @@
+{
+	"name": "master-the-coding-interview-data-structures-algorithms",
+	"build": {
+		"dockerfile": "../Containerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python"
+			]
+		}
+	}
+}
