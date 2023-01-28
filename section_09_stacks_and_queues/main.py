@@ -169,6 +169,7 @@ class QueueBuiltWithStacks:
 
     Now let's "dequeue" an item. "x" should come first because this is a FIFO queue.
     To achieve this, we need to pop all the items from stack1 and move them to stack2.
+    Imagine the left end of stack1 and right end of stack2 are connected by a slinky.
 
                     stack1   stack2
                      -----| |yx---

@@ -1,6 +1,8 @@
 # Section 11: Data Structures: Graphs
 
 A linked list is a type of tree. Trees are a type of graph.
+Graphs are good for defining relationships.
+Neo4J is a popular graph database.
 
 Term | Meaning
 :- | :-
