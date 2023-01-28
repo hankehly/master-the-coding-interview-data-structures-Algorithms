@@ -1,0 +1,26 @@
+# Section 13: Algorithms: Sorting
+
+* Learning sorting is important for working with large inputs, when we can't just rely on builtin `sort` functions from the programming language.
+* Depending on how the data is sorted (random, reversed, nearly sorted, etc..) different algorithms will perform better.
+
+### Bubble Sort
+
+Time complexity is $O(n^2)$, space complexity is $O(1)$.
+
+You make repeated trips through the array from left to right and *bubble up* the higher number in your 2-item window.
+
+```py
+# Start:
+[2, 7, 5, 1, 4]
+
+# [2, 7] are the first pair. 2 < 7 is True, so no need to do anything.
+[2, 7, 5, 1, 4]
+
+# [7, 5] are the next pair. 7 < 5 is False, so swap their places
+[2, 5, 7, 1, 4]
+
+# [7, 1] are the next pair. 7 < 1 is False, so swap their places
+[2, 5, 1, 7, 4]
+```
+
+Once we reach the end, we go back to the start and start-over.
