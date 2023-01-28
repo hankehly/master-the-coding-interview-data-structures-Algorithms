@@ -5,9 +5,13 @@
 
 ### Bubble Sort
 
-Time complexity is $O(n^2)$, space complexity is $O(1)$.
+Time complexity is $O(n^2)$, space complexity is $O(1)$. Pretty bad..
 
-You make repeated trips through the array from left to right and *bubble up* the higher number in your 2-item window.
+You make repeated trips through the array from left to right and *bubble up* the higher number in the current 2-item window.
+
+On each trip, bubble-sort guarantees that the highest number in the list gets *bubbled up* to the last position. Therefore, we only need to make `len(array)` trips through the list to guarantee that it gets completely sorted.
+
+You could optimize the algorithm by using a while loop and checking on each iteration whether the last run made a swap or not. If it didn't, you can exit early!
 
 ```py
 # Start:
@@ -22,5 +26,3 @@ You make repeated trips through the array from left to right and *bubble up* the
 # [7, 1] are the next pair. 7 < 1 is False, so swap their places
 [2, 5, 1, 7, 4]
 ```
-
-Once we reach the end, we go back to the start and start-over.
