@@ -32,6 +32,8 @@ def find_factorial_iterative(n: int) -> int:
 
 def fibonacci_recursive(n) -> int:
     """
+    O(2^n) (exponential time, very bad!)
+
     Return the n-th value of the Fibonacci sequence.
       0, 1, 1, 2, 3, 5, 8, 13, 21, ..
 
@@ -43,15 +45,17 @@ def fibonacci_recursive(n) -> int:
     assert n >= 0
     if n < 2:
         return n
-    else:
-        # What's the value of fib(3)?
-        # It's fib(1) + fib(2)
-        # Okay, what's the value of fib(4)?
-        # Well, it's fib(2) + fib(3)
-        return fibonacci_recursive(n - 2) + fibonacci_recursive(n - 1)
+    # What's the value of fib(3)?
+    # It's fib(1) + fib(2)
+    # Okay, what's the value of fib(4)?
+    # Well, it's fib(2) + fib(3)
+    return fibonacci_recursive(n - 2) + fibonacci_recursive(n - 1)
 
 
 def fibonacci_iterative(n) -> int:
+    """
+    O(n)
+    """
     assert n >= 0
     if n < 2:
         return n
@@ -61,6 +65,36 @@ def fibonacci_iterative(n) -> int:
         fib.append(fib[i - 2] + fib[i - 1])
     # Now that we have n numbers in the sequence, return the one we need
     return fib[n]
+
+
+def reverse_string_iterative(string: str) -> str:
+    a = list(string)
+    for i in range(len(a) // 2):
+        j = len(a) - (i + 1)
+        a[i], a[j] = a[j], a[i]
+    return "".join(a)
+
+
+def reverse_string_recursive(string: str) -> str:
+    """
+    How can we divide this into smaller sub-problems?
+    We can split the string in two, and swap the order.
+    Keep doing this until we're left with one character.
+    In that case, we can't split the problem any further, so return the character.
+
+                                 hello
+                                /    \
+                              llo     he    # divide into 2, swap places
+                              / \     / \
+                            lo   l   e   h  # same thing
+                            / \
+                           o   l            # same thing
+    """
+    if len(string) == 1:
+        return string
+    mid_point = len(string) // 2
+    front, back = string[:mid_point], string[mid_point:]
+    return reverse_string_recursive(back) + reverse_string_recursive(front)
 
 
 if __name__ == "__main__":
@@ -74,3 +108,7 @@ if __name__ == "__main__":
     assert fibonacci_recursive(2) == fibonacci_iterative(2) == 1
     assert fibonacci_recursive(7) == fibonacci_iterative(7) == 13
     assert fibonacci_recursive(8) == fibonacci_iterative(8) == 21
+    # Reverse string
+    # assert reverse_string_recursive("yoyo mastery") == "yretsam oyoy"
+    print(reverse_string_recursive("yoyo mastery"))
+    # assert reverse_string_iterative("yoyo mastery") == "yretsam oyoy"
