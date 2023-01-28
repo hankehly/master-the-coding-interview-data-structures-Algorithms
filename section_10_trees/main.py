@@ -32,6 +32,9 @@ class BinarySearchTree:
         self._root = None
 
     def insert(self, value: Any) -> None:
+        """
+        Increasing values go to the right, decreasing values go to the left.
+        """
         new_node = Node(value)
         if self._root is None:
             self._root = new_node
@@ -83,8 +86,9 @@ class BinarySearchTree:
 
     def successor(self, node: Node):
         """
-        The "successor" of a given node is the node with the smallest number greater than itself.
+        The "successor" of a given node is "the node with the smallest number greater than itself."
 
+        Here's how to look for it:
         1. First, we should look for the smallest number in the right subtree.
         2. If there is no right subtree, the successor must be above the current node.
         To find it, we should look for the parent of the subtree that has `node` on its left side.
@@ -214,7 +218,11 @@ class BinaryMaxHeap:
     https://visualgo.net/en/heap/print
     https://en.wikipedia.org/wiki/Binary_heap
 
-    Note: Does not handle duplicates. Logs the whole array if LOGLEVEL=debug.
+    Notes
+    -----
+    Does not handle duplicates.
+    Logs the whole array if LOGLEVEL=debug.
+    Indices are from 1+
     """
 
     def __init__(self):
