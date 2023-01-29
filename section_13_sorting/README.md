@@ -26,3 +26,9 @@ You could optimize the algorithm by using a while loop and checking on each iter
 # [7, 1] are the next pair. 7 < 1 is False, so swap their places
 [2, 5, 1, 7, 4]
 ```
+
+### Selection Sort
+
+Repeatedly scan the list (like bubble sort) and each time, find the smallest item. Move it to first place and repeat. The second time around, move the smallest item to the second place, and so forth..
+
+Also bad time complexity $O(n^2)$, space complexity same as bubble sort $O(1)$.

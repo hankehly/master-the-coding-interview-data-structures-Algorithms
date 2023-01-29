@@ -13,6 +13,8 @@ def bubble_sort(arr: List[int], inplace: bool = False):
     if not inplace:
         arr = list(arr)
     n = len(arr)
+    if n == 1:
+        return arr
     for _ in range(n):
         for i in range(n):
             j = i + 1
@@ -31,6 +33,8 @@ def bubble_sort_optimized(arr: List[int], inplace: bool = False) -> List[int]:
     if not inplace:
         arr = list(arr)
     n = len(arr)
+    if n == 1:
+        return arr
     logger = logging.getLogger("bubble_sort_optimized")
     in_progress = True
     n_iter = 0  # just for inspection
@@ -49,7 +53,31 @@ def bubble_sort_optimized(arr: List[int], inplace: bool = False) -> List[int]:
     return arr
 
 
+def selection_sort(arr: List[int], inplace: bool = False) -> List[int]:
+    if not inplace:
+        arr = list(arr)
+    n = len(arr)
+    if n == 1:
+        return arr
+    for i in range(n):
+        # Initialize the minimum value index at first position (of remaining unsorted list)
+        min_i = i
+        # Loop through remaining unsorted list
+        for j in range(i, n):
+            # Find the min value and store it's index in min_i
+            if arr[j] < arr[min_i]:
+                min_i = j
+        # Move the min value to the first position
+        arr[i], arr[min_i] = arr[min_i], arr[i]
+    return arr
+
+
 if __name__ == "__main__":
     numbers = [99, 44, 6, 2, 1, 5, 63, 87, 283, 4, 0]
     expected_output = sorted(numbers)
-    assert bubble_sort(numbers) == bubble_sort_optimized(numbers) == expected_output
+    assert (
+        bubble_sort(numbers)
+        == bubble_sort_optimized(numbers)
+        == selection_sort(numbers)
+        == expected_output
+    )
