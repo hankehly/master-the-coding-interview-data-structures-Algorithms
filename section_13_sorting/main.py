@@ -100,6 +100,46 @@ def insertion_sort(arr: List[int], inplace: bool = False) -> List[int]:
     return arr
 
 
+def _merge(left: List[int], right: List[int]) -> List[int]:
+    """
+    The merge logic of the merge_sort algorithm.
+    """
+    arr = []
+    # The idea here is to continuously pick items off of the left side of each list,
+    # in order of lowest to highest.
+    # Keep a position marker for each list, then on each iteration compare the values
+    # at the appropriate position markers.
+    i = j = 0
+    # Until we reach the end of one of the lists..
+    while i < len(left) and j < len(right):
+        # Compare and update the appropriate position marker
+        if left[i] <= right[j]:
+            arr.append(left[i])
+            i += 1
+        else:
+            arr.append(right[j])
+            j += 1
+    # At this point, we know either left or right is empty, so add the remaining (sorted)
+    # elements to the end of the output list we created. One of these calls is meaningless
+    # but we don't know which has items, so just do both.
+    arr.extend(left[i:])
+    arr.extend(right[j:])
+    logging.debug(f"_merge({left}, {right}) => {arr}")
+    return arr
+
+
+def merge_sort(arr: List[int]) -> List[int]:
+    n = len(arr)
+    if n == 1:
+        return arr
+    mid_point = n // 2
+    logging.debug(f"merge_sort_left({arr[:mid_point]})")
+    left = merge_sort(arr[:mid_point])
+    logging.debug(f"merge_sort_right({arr[mid_point:]})")
+    right = merge_sort(arr[mid_point:])
+    return _merge(left, right)
+
+
 if __name__ == "__main__":
     numbers = [99, 44, 6, 2, 1, 5, 63, 87, 283, 4, 0]
     expected_output = sorted(numbers)
@@ -108,5 +148,6 @@ if __name__ == "__main__":
         == bubble_sort_optimized(numbers)
         == selection_sort(numbers)
         == insertion_sort(numbers)
+        == merge_sort(numbers)
         == expected_output
     )

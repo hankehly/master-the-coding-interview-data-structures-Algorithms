@@ -36,3 +36,13 @@ Also bad time complexity $O(n^2)$, space complexity same as bubble sort $O(1)$.
 ### Insertion Sort
 
 You step through the array and on each iteration, you pause and consider the items before it, in order (ie. backwards). If the item before it is bigger, swap. Repeat this process of swapping until the previous item is smaller than the current item. Then, you move on to the next item in the list (the outer loop).
+
+If the data is nearly sorted, you want to use insertion sort. Best time complexity is near $O(n)$.
+
+### Merge Sort
+
+Divide and conquer strategy. Divide the array into two parts (left, right) and submit to "merge" function. The key is to use recursion to divide the initial array into left/right split until both are single-item lists, then build the array back up using the merge function, which combines the elements in both arrays in sorted order.
+
+See the function docstring for details.
+
+Time complexity is $O(n log n)$ but space complexity is $O(n)$, so it uses more space than bubble, selection or insertion sort.
