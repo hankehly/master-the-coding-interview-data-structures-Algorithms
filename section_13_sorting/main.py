@@ -110,7 +110,7 @@ def _merge(left: List[int], right: List[int]) -> List[int]:
     # Keep a position marker for each list, then on each iteration compare the values
     # at the appropriate position markers.
     i = j = 0
-    # Until we reach the end of one of the lists..
+    # As long as we're able to process items in both lists..
     while i < len(left) and j < len(right):
         # Compare and update the appropriate position marker
         if left[i] <= right[j]:
@@ -138,6 +138,13 @@ def merge_sort(arr: List[int]) -> List[int]:
     logging.debug(f"merge_sort_right({arr[mid_point:]})")
     right = merge_sort(arr[mid_point:])
     return _merge(left, right)
+
+
+def quick_sort(arr: List[int]) -> List[int]:
+    """
+    Todo
+    """
+    pass
 
 
 if __name__ == "__main__":
