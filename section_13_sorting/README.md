@@ -32,3 +32,7 @@ You could optimize the algorithm by using a while loop and checking on each iter
 Repeatedly scan the list (like bubble sort) and each time, find the smallest item. Move it to first place and repeat. The second time around, move the smallest item to the second place, and so forth..
 
 Also bad time complexity $O(n^2)$, space complexity same as bubble sort $O(1)$.
+
+### Insertion Sort
+
+You step through the array and on each iteration, you pause and consider the items before it, in order (ie. backwards). If the item before it is bigger, swap. Repeat this process of swapping until the previous item is smaller than the current item. Then, you move on to the next item in the list (the outer loop).
