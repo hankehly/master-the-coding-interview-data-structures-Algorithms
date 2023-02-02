@@ -1,6 +1,9 @@
+import collections
 import logging
 import os
 from typing import Any, List
+
+from section_10_trees.main import BinarySearchTree
 
 LOGLEVEL = os.getenv("LOGLEVEL", "INFO").upper()
 logging.basicConfig(level=LOGLEVEL)
@@ -49,6 +52,37 @@ def binary_search(arr: List[int], low: int, high: int, x: int) -> int:
     return -1
 
 
+class BreadthFirstSearch:
+    def __init__(self, tree: BinarySearchTree):
+        self._tree = tree
+
+    def breadth_first_search(self, x):
+        """
+        Start from the top of the tree, and search top-down left-right order.
+        """
+        logging.debug(f"[BFS] Looking for {x}")
+        # 1. Create a queue and add the root node to it.
+        node = self._tree._root
+        queue = collections.deque()
+        queue.append(node)
+        # 2. Continue until there are no more items left.
+        # (We're gonna keep adding items in the body of the while loop)
+        while len(queue):
+            node = queue.popleft()
+            logging.debug(f"dequeue {node.value}. {node.value}={x} ? {node.value == x}")
+            # 3. If the current node is the one you're looking for, great.
+            if node.value == x:
+                return node
+            # 4. Otherwise, add the node's children to the queue (if they exist)
+            if node.left:
+                logging.debug(f"enqueue {node.left}")
+                queue.append(node.left)
+            if node.right:
+                logging.debug(f"enqueue {node.right}")
+                queue.append(node.right)
+        return None
+
+
 if __name__ == "__main__":
     names = ["Bob", "George", "Sally"]
     assert linear_search(names, "George") == names.index("George") == 1
@@ -58,3 +92,21 @@ if __name__ == "__main__":
     assert binary_search(arr, 0, len(arr) - 1, 3) == 2
     assert binary_search(arr, 0, len(arr) - 1, 8) == 7
     assert binary_search(arr, 0, len(arr) - 1, 30) == -1
+
+    # BST
+    #      9
+    #    /   \
+    #   4     20
+    #  / \    / \
+    # 1   6 15  170
+    bst = BinarySearchTree()
+    bst.insert(9)
+    bst.insert(4)
+    bst.insert(20)
+    bst.insert(1)
+    bst.insert(6)
+    bst.insert(15)
+    bst.insert(170)
+    bfs = BreadthFirstSearch(bst)
+    assert bfs.breadth_first_search(15).value == 15
+    assert bfs.breadth_first_search(152) is None
