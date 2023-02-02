@@ -60,7 +60,8 @@ class BreadthFirstSearch:
         """
         Start from the top of the tree, and search top-down left-right order.
         """
-        logging.debug(f"[BFS] Looking for {x}")
+        logger = logging.getLogger("breadth_first_search")
+        logger.debug(f"Looking for {x}")
         # 1. Create a queue and add the root node to it.
         node = self._tree._root
         queue = collections.deque()
@@ -69,17 +70,42 @@ class BreadthFirstSearch:
         # (We're gonna keep adding items in the body of the while loop)
         while len(queue):
             node = queue.popleft()
-            logging.debug(f"dequeue {node.value}. {node.value}={x} ? {node.value == x}")
+            logger.debug(f"dequeue {node.value}")
+            logger.debug(f"{node.value} == {x} ({node.value == x})")
             # 3. If the current node is the one you're looking for, great.
             if node.value == x:
                 return node
             # 4. Otherwise, add the node's children to the queue (if they exist)
             if node.left:
-                logging.debug(f"enqueue {node.left}")
+                logger.debug(f"enqueue {node.left}")
                 queue.append(node.left)
             if node.right:
-                logging.debug(f"enqueue {node.right}")
+                logger.debug(f"enqueue {node.right}")
                 queue.append(node.right)
+        logger.debug(f"{x} is not in this tree")
+        return None
+
+    def breadth_first_search_recursive(self, queue: collections.deque, x):
+        """
+        A recursive version of breadth_first_search.
+        To keep the state of the queue, we pass it from outside.
+        """
+        logger = logging.getLogger("breadth_first_search_recursive")
+        logger.debug(f"Looking for {x}")
+        if len(queue):
+            node = queue.popleft()
+            logger.debug(f"dequeue {node.value}")
+            logger.debug(f"{node.value} == {x} ({node.value == x})")
+            if node.value == x:
+                return node
+            if node.left:
+                logger.debug(f"enqueue {node.left}")
+                queue.append(node.left)
+            if node.right:
+                logger.debug(f"enqueue {node.right}")
+                queue.append(node.right)
+            return self.breadth_first_search_recursive(queue, x)
+        logger.debug(f"{x} is not in this tree")
         return None
 
 
@@ -108,5 +134,16 @@ if __name__ == "__main__":
     bst.insert(15)
     bst.insert(170)
     bfs = BreadthFirstSearch(bst)
-    assert bfs.breadth_first_search(15).value == 15
-    assert bfs.breadth_first_search(152) is None
+
+    queue1 = collections.deque([bst._root])
+    assert (
+        bfs.breadth_first_search(15).value
+        == bfs.breadth_first_search_recursive(queue1, 15).value
+        == 15
+    )
+    queue2 = collections.deque([bst._root])
+    assert (
+        bfs.breadth_first_search(152)
+        is bfs.breadth_first_search_recursive(queue2, 152)
+        is None
+    )
