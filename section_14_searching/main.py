@@ -20,6 +20,10 @@ def linear_search(arr: List[Any], x: Any) -> int:
 
 def binary_search(arr: List[int], low: int, high: int, x: int) -> int:
     """
+    Split the numbers in half, compare the values to the left.
+    If they're less than what we're looking for, throw away the left side of the list.
+    Repeat the process with the right side, until the mid-point marker ends up being our target value.
+
     Instead of recursively calling binary_search on the splitted array (which
     messes up the indices) keep track of where the subset starts and ends.
 
@@ -52,7 +56,7 @@ def binary_search(arr: List[int], low: int, high: int, x: int) -> int:
     return -1
 
 
-class BreadthFirstSearch:
+class BSTSearching:
     def __init__(self, tree: BinarySearchTree):
         self._tree = tree
 
@@ -104,20 +108,84 @@ class BreadthFirstSearch:
             if node.right:
                 logger.debug(f"enqueue {node.right}")
                 queue.append(node.right)
+            # We're basically just replacing the while loop with a recursive call.
             return self.breadth_first_search_recursive(queue, x)
         logger.debug(f"{x} is not in this tree")
         return None
 
 
-if __name__ == "__main__":
-    names = ["Bob", "George", "Sally"]
-    assert linear_search(names, "George") == names.index("George") == 1
+def traverse_in_order(node, path: List, nodes: List):
+    logging.debug(f"traverse_in_order({node.value}, {path}, {nodes})")
+    # 0. Keep track of the path we took
+    path.append(node.value)
+    # 1. We want to go as far left as possible first.
+    if node.left:
+        logging.debug(f"node has left child ({node.left.value})")
+        traverse_in_order(node.left, path, nodes)
+    else:
+        logging.debug(f"node {node.value} does not have a left child")
+    logging.debug(f"appending {node.value} to list")
+    # 2. Then add that node to our InOrder list
+    nodes.append(node.value)
+    # 3. Once we hit a dead-end to the left, go to the right.
+    # We already traversed as far left as possible, so this will be depth first.
+    if node.right:
+        logging.debug(f"node has right child ({node.right.value})")
+        traverse_in_order(node.right, path, nodes)
+    else:
+        logging.debug(f"node {node.value} does not have a right child")
+    logging.debug(f"done with node {node.value}")
+    return path, nodes
 
-    arr = [1, 2, 3, 4, 5, 6, 7, 8]
-    assert binary_search(arr, 0, len(arr) - 1, 1) == 0
-    assert binary_search(arr, 0, len(arr) - 1, 3) == 2
-    assert binary_search(arr, 0, len(arr) - 1, 8) == 7
-    assert binary_search(arr, 0, len(arr) - 1, 30) == -1
+
+def traverse_pre_order(node, path: List, nodes: List):
+    """
+    In PreOrder, the order of traversal is the same as the InOrder "path"
+    In other words, we "touch" nodes in PreOrder order in InOrder traversal.
+    """
+    logging.debug(f"traverse_pre_order({node.value}, {path}, {nodes})")
+    # 0. Keep track of the path we took
+    path.append(node.value)
+    # 1. Add the node to our PreOrder list (you see path==nodes)
+    nodes.append(node.value)
+    # 2. Go as far left as possible first.
+    if node.left:
+        logging.debug(f"node has left child ({node.left.value})")
+        traverse_pre_order(node.left, path, nodes)
+    else:
+        logging.debug(f"node {node.value} does not have a left child")
+    logging.debug(f"appending {node.value} to list")
+    # 3. Go right after we can't go left anymore
+    if node.right:
+        logging.debug(f"node has right child ({node.right.value})")
+        traverse_pre_order(node.right, path, nodes)
+    else:
+        logging.debug(f"node {node.value} does not have a right child")
+    logging.debug(f"done with node {node.value}")
+    return path, nodes
+
+
+def traverse_post_order(node, out_path: List, out_order: List):
+    out_path.append(node)
+
+    if node.left:
+        traverse_post_order(node.left, out_path, out_order)
+    if node.right:
+        traverse_post_order(node.right, out_path, out_order)
+    out_order.append(node.value)
+
+    return out_path, out_order
+
+
+if __name__ == "__main__":
+    # names = ["Bob", "George", "Sally"]
+    # assert linear_search(names, "George") == names.index("George") == 1
+
+    # arr = [1, 2, 3, 4, 5, 6, 7, 8]
+    # assert binary_search(arr, 0, len(arr) - 1, 1) == 0
+    # assert binary_search(arr, 0, len(arr) - 1, 3) == 2
+    # assert binary_search(arr, 0, len(arr) - 1, 8) == 7
+    # assert binary_search(arr, 0, len(arr) - 1, 30) == -1
 
     # BST
     #      9
@@ -133,17 +201,23 @@ if __name__ == "__main__":
     bst.insert(6)
     bst.insert(15)
     bst.insert(170)
-    bfs = BreadthFirstSearch(bst)
+    # bfs = BSTSearching(bst)
 
-    queue1 = collections.deque([bst._root])
-    assert (
-        bfs.breadth_first_search(15).value
-        == bfs.breadth_first_search_recursive(queue1, 15).value
-        == 15
-    )
-    queue2 = collections.deque([bst._root])
-    assert (
-        bfs.breadth_first_search(152)
-        is bfs.breadth_first_search_recursive(queue2, 152)
-        is None
-    )
+    # queue1 = collections.deque([bst._root])
+    # assert (
+    #     bfs.breadth_first_search(15).value
+    #     == bfs.breadth_first_search_recursive(queue1, 15).value
+    #     == 15
+    # )
+    # queue2 = collections.deque([bst._root])
+    # assert (
+    #     bfs.breadth_first_search(152)
+    #     is bfs.breadth_first_search_recursive(queue2, 152)
+    #     is None
+    # )
+
+    path, nodes = [], []
+    # traverse_in_order(bst._root, path, nodes)
+    traverse_post_order(bst._root, path, nodes)
+    print(f"path: {path}")
+    print(f"nodes: {nodes}")

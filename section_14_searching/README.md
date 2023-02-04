@@ -26,7 +26,9 @@ Split the numbers in half, compare the values to the left. If they're less than 
 
 ### Breadth First Search (BFS)
 
-(See section_10_trees for implementation)
+Shortest Path / Most related items / Closest friends on Facebook
+
+(See implementation for more details)
 
 * We traverse the nodes from top to bottom, left to right (picture a curtain coming down at the end of a play, or reading a book)
 * $O(n)$ time complexity
@@ -47,8 +49,11 @@ Split the numbers in half, compare the values to the left. If they're less than 
 
 ### Depth First Search (DFS)
 
+"Check to see if relationship exists"
+
 * We go as deep as we can to the left, then once we run out of nodes, start going to the right.
 * $O(n)$ time complexity
+* $O(\log{n})$ space complexity, because we use recursion to go deep first, so the **height of the tree equal the memory we need**.
 * Uses less memory than BFS, but can be slower
 * Good for asking the question "does the node exist?"
 
@@ -59,9 +64,84 @@ Split the numbers in half, compare the values to the left. If they're less than 
  / \   / \
 1   5 9  13
 ```
+There are 3 ways to perform Depth First Search. The algorithms are basically the same. The only difference is the order of operations.
+
+#### 1. InOrder Traversal
+
+Order of operations:
+1. Traverse left
+2. Visit node ("in" so in the middle)
+3. Traverse right
+
 ```py
-[8, 4, 1, 5, 10, 9, 13]
+def traverse_in_order(node):
+    if node.left:
+        traverse_in_order(node.left)
+    print(node)
+    if node.right:
+        traverse_in_order(node.right)
 ```
+
+```py
+1, 4, 5, 8, 9, 10, 13
+```
+
+<img src="images/bst-inorder-visual.png">
+
+#### 2. PreOrder Traversal
+
+Order of operations:
+1. Visit node ("pre" so first)
+2. Traverse left
+3. Traverse right
+
+```py
+def traverse_in_order(node):
+    print(node)
+    if node.left:
+        traverse_in_order(node.left)
+    if node.right:
+        traverse_in_order(node.right)
+```
+
+```py
+8, 4, 1, 5, 10, 9, 13
+```
+
+#### 3. PostOrder Traversal
+
+Order of operations:
+1. Traverse left
+2. Traverse right
+3. Visit node ("post" so last)
+
+```py
+def traverse_in_order(node):
+    if node.left:
+        traverse_in_order(node.left)
+    if node.right:
+        traverse_in_order(node.right)
+    print(node)
+```
+
+```py
+1, 5, 4, 9, 13, 10, 8
+```
+
+### BFS/DFS in graphs
+
+With BFS, you check all the closest vertices first, then continue outwards.
+With DFS, ...
+
+### Bellman-Ford / Dijkstra Algorithms
+
+Use to find the shortest path in a **weighted** graph.
+With normal BFS/DFS we don't consider the edge weights. These 2 algorithms do.
+
+Bellman-Ford can handle negative weights. Dijkstra cannot.
+Dijkstra has better time/space complexity than Bellman-Ford.
+
+https://medium.com/basecs/finding-the-shortest-path-with-a-little-help-from-dijkstra-613149fbdc8e
 
 ## When to use BFS/DFS
 
