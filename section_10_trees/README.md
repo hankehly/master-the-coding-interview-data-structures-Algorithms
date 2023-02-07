@@ -18,6 +18,16 @@ Balanced trees are good because lookup/insert/delete operations take $O(\log{n})
 
 Unbalanced trees, on the other hand, lose the above performance benefits because too many nodes can get pushed to one side. Sometimes this turns the tree into one big linked-list (and linked list operations take $O(n)$ time..)
 
+#### Full vs Complete
+
+Full means all parent nodes have 2 children.
+<img src="https://web.cecs.pdx.edu/~sheard/course/Cs163/Graphics/FullBinary.jpg">
+
+Complete means full **on all but the last level**, and all nodes are as far left as possible.
+<img src="https://web.cecs.pdx.edu/~sheard/course/Cs163/Graphics/CompleteBinary.jpg">
+
+<a href="https://web.cecs.pdx.edu/~sheard/course/Cs163/Doc/FullvsComplete.html">Image credit</a>
+
 ### Binary (Max/Min) Heap
 
 The value of the parent is greater than the values of its children. The order of the children doesn't matter, just as long as they're less than the parent. Often used to make priority queues.
