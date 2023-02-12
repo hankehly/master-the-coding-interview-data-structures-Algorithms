@@ -96,12 +96,12 @@ Order of operations:
 3. Traverse right
 
 ```py
-def traverse_in_order(node):
+def traverse_pre_order(node):
     print(node)
     if node.left:
-        traverse_in_order(node.left)
+        traverse_pre_order(node.left)
     if node.right:
-        traverse_in_order(node.right)
+        traverse_pre_order(node.right)
 ```
 
 ```py
@@ -116,17 +116,24 @@ Order of operations:
 3. Visit node ("post" so last)
 
 ```py
-def traverse_in_order(node):
+def traverse_post_order(node):
     if node.left:
-        traverse_in_order(node.left)
+        traverse_post_order(node.left)
     if node.right:
-        traverse_in_order(node.right)
+        traverse_post_order(node.right)
     print(node)
 ```
 
 ```py
 1, 5, 4, 9, 13, 10, 8
 ```
+
+### When to use Pre/In/Post order?
+
+* Use pre-order traversal when you want to check roots first
+* Use post-order traversal when you want to check leaves first
+* Use in-order traversal when the nodes are in some order and you want to use that
+
 
 ### BFS/DFS in graphs
 
